@@ -1,6 +1,7 @@
 import random
 import numpy as np
 
+
 class GridWorld():
     def __init__(self):
         self.x=0
@@ -19,11 +20,13 @@ class GridWorld():
 
         reward = -1 # 보상은 항상 -1로 고정
         done = self.is_done()
+
+        # 현재 좌표와 보상, 도착여부 리턴
         return (self.x, self.y), reward, done
 
     def move_right(self):
         self.y += 1  
-        if self.y > 3:
+        if self.y > 3:  # GridWorld를 벗어나지 못하게 함.
             self.y = 3
       
     def move_left(self):
@@ -42,6 +45,7 @@ class GridWorld():
             self.x = 3
 
     def is_done(self):
+        # 도착점에 도착했는가?
         if self.x == 3 and self.y == 3:
             return True
         else :
@@ -61,6 +65,9 @@ class Agent():
 
     def select_action(self):
         coin = random.random()
+
+        # 각 액션의 확률은 0.25로 동일함
+
         if coin < 0.25:
             action = 0
         elif coin < 0.5:
@@ -75,7 +82,11 @@ class Agent():
 def main():
     env = GridWorld()
     agent = Agent()
-    data = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    data = [[0,0,0,0],
+            [0,0,0,0],
+            [0,0,0,0],
+            [0,0,0,0]]
+
     gamma = 1.0
     reward = -1
     alpha = 0.001
@@ -84,16 +95,16 @@ def main():
         done = False
         history = []
 
-        while not done:
+        while not done:  # 도착점에 도착할 때까지 반복
             action = agent.select_action()
             (x,y), reward, done = env.step(action)
             history.append((x,y,reward))
         env.reset()
 
         cum_reward = 0
-        for transition in history[::-1]:
+        for transition in history[::-1]:  # 역순으로 꺼내온다.
             x, y, reward = transition
-            data[x][y] = data[x][y] + alpha*(cum_reward-data[x][y])
+            data[x][y] = data[x][y] + alpha*(cum_reward-data[x][y])  # 벨만 기대 방정식 중 상태 방정식 이용
             cum_reward = reward + gamma*cum_reward  # 책에 오타가 있어 수정하였습니다
             
     for row in data:
